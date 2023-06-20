@@ -1,0 +1,97 @@
+#!/bin/bash
+
+declare SCREENSHOT_FOLDER="/home/$(whoami)/Screenshots"
+
+# HELPER FUNCTIONS
+SetupDirs() {
+    if [ ! -d "$SCREENSHOT_FOLDER" ]; then
+        echo "$SCREENSHOT_FOLDER does not exist, creating directory..."
+        mkdir "$SCREENSHOT_FOLDER"
+    fi
+
+    if [ ! -d "$(date +"$SCREENSHOT_FOLDER/%Y")" ]; then
+        echo "$(date +"$SCREENSHOT_FOLDER/%Y") does not exist, creating directory..."
+        mkdir "$(date +"$SCREENSHOT_FOLDER/%Y")"
+    fi
+
+    if [ ! -d "$(date +"$SCREENSHOT_FOLDER/%Y/%b")" ]; then
+        echo "$(date +"$SCREENSHOT_FOLDER/%Y/%b") does not exist, creating directory..."
+        mkdir "$(date +"$SCREENSHOT_FOLDER/%Y/%b")"
+    fi
+}
+
+DetermineDirectory() {
+    echo "$(date +"$SCREENSHOT_FOLDER/%Y/%b")"
+}
+
+DetermineFileName() {
+    echo "$(date +"%d_%H-%M-%S").png"
+}
+
+DetermineFullPath() {
+    echo "$(DetermineDirectory)/$(DetermineFileName)"
+}
+
+ShowUsage() {
+    echo "Usage: $0 [-c, -f, or -cf]"
+    echo
+    echo "-c ~ Selection into clipboard"
+    echo "-f ~ Selection into file"
+    echo "-cf ~ Selection into clipboard and file"
+}
+# END HELPER FUNCTIONS
+
+
+
+# CMD EXIST FUNCTIONS
+DoesCmdExist() {
+    if [ ! command -v $1 &> /dev/null ]; then
+        return 1
+    fi
+}
+
+ErrIfCmdNoExist() {
+    DoesCmdExist $1
+    if [ $? != 0 ]; then
+        echo $2
+        exit 1
+    fi
+}
+# END COMMAND EXIST FUNCTIONS
+
+
+
+# SCREENSHOT FUNCTIONS
+ClipboardScreenshot() {
+    scrot -s -f - | xclip -selection clipboard -t image/png
+}
+
+FileScreenshot() {
+    scrot -s -f -o $1
+}
+
+ClipboardAndFileScreenshot() {
+    scrot -s -f -o $1
+    cat $1 | xclip -selection clipboard -t image/png
+}
+# END SCREENSHOT FUNCTIONS
+
+
+
+
+
+ErrIfCmdNoExist scrot "You must install scrot."
+ErrIfCmdNoExist xclip "You must install xclip."
+#ErrIfCmdNoExist sed "You must install sed."
+
+SetupDirs
+
+if [ -z "$1" ] && [ "$1" != "-c" ] && [ "$1" != "-f" ] && [ "$1" != "-cf" ]; then
+    ShowUsage
+elif [ "$1" == "-c" ]; then
+    ClipboardScreenshot
+elif [ "$1" == "-f" ]; then
+    FileScreenshot $(DetermineFullPath)
+elif [ "$1" == "-cf" ]; then
+    ClipboardAndFileScreenshot $(DetermineFullPath)
+fi
