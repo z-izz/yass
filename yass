@@ -1,6 +1,9 @@
 #!/bin/bash
 
 declare SCREENSHOT_FOLDER="/home/$(whoami)/Screenshots"
+declare YASS_VERSION="v1.0.0"
+
+echo "yass $YASS_VERSION"
 
 # HELPER FUNCTIONS
 SetupDirs() {
@@ -38,6 +41,8 @@ ShowUsage() {
     echo "-c ~ Selection into clipboard"
     echo "-f ~ Selection into file"
     echo "-cf ~ Selection into clipboard and file"
+    echo
+    echo "File screenshots are dumped into $SCREENSHOT_FOLDER"
 }
 # END HELPER FUNCTIONS
 
